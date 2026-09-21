@@ -33,8 +33,8 @@ Follow the browser sign-in instructions printed by the command.
 Clone this example and build it with debug symbols (PDB files):
 
 ```powershell
-git clone https://github.com/liasoft/quick-start.git
-cd quick-start
+git clone https://github.com/liasoft/covdbg-quick-start.git
+cd covdbg-quick-start
 cmake -S . -B build
 cmake --build build --config Debug
 ```
