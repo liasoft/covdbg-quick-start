@@ -57,7 +57,7 @@ covdbg convert --format LCOV --input .\build\Debug\test_app.covdb --output .\bui
 
 ## GitHub Actions
 
-The included workflow builds the example, installs covdbg 1.3.0 with `liasoft/setup-covdbg@v0`, and uploads the LCOV report.
+The included workflow builds the example, installs the latest covdbg release with `liasoft/setup-covdbg@v0`, and uploads the LCOV report.
 
 Public repositories are free, but CI still authenticates with a project token. A token from your personal team at [app.covdbg.com](https://app.covdbg.com/) is sufficient.
 
