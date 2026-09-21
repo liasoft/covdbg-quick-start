@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Setup covdbg
-      uses: covdbg/setup-covdbg@v0
+      uses: liasoft/setup-covdbg@v1
       with:
         version: 'latest'
 
@@ -46,8 +46,11 @@ jobs:
 
     - name: Run Coverage
       shell: pwsh
+      env:
+        COVDBG_PROJECT_TOKEN: ${{ secrets.COVDBG_PROJECT_TOKEN }}
       run: |
-        covdbg --fetch-license --config .covdbg.yaml --output .\build\Debug\test_app.covdb .\build\Debug\test_app.exe
+        covdbg --config .covdbg.yaml --output .\build\Debug\test_app.covdb .\build\Debug\test_app.exe
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         covdbg convert --format LCOV --input .\build\Debug\test_app.covdb --output .\build\Debug\test_app.lcov
 
     - name: Upload Coverage Reports
