@@ -1,6 +1,6 @@
 # covdbg Quick Start
 
-Build a small C++ application and collect code coverage with [covdbg](https://covdbg.com/) 1.3.0 on Windows.
+Build a small C++ application and collect code coverage with the latest [covdbg](https://covdbg.com/) release on Windows.
 
 ## Prerequisites
 
@@ -11,14 +11,13 @@ Build a small C++ application and collect code coverage with [covdbg](https://co
 
 ## Installation
 
-Download the [covdbg 1.3.0 MSI installer](https://downloads.covdbg.com/covdbg-1.3.0-x64.msi) and run it. It installs covdbg for your Windows user and adds it to PATH. Open a new terminal and verify the version:
+Download the [latest covdbg MSI installer](https://covdbg.com/download/latest/installer.msi) and run it. It installs covdbg for your Windows user and adds it to PATH. Open a new terminal and verify the version:
 
 ```powershell
 covdbg --version
-# covdbg 1.3.0
 ```
 
-Alternatively, extract the [portable ZIP](https://downloads.covdbg.com/covdbg-1.3.0-x64.zip) and add its directory to PATH. Keep `covdbg.exe` and `libcovdbg.dll` together.
+Alternatively, extract the [latest portable ZIP](https://covdbg.com/download/latest/portable.zip) and add its directory to PATH. Keep `covdbg.exe` and `libcovdbg.dll` together.
 
 Sign in before collecting coverage:
 
