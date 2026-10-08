@@ -27,7 +27,7 @@ covdbg login
 
 Follow the browser sign-in instructions printed by the command.
 
-The browser sign-in ends with choosing the team to sign in for. Use `covdbg login --team personal` to skip the choice, and `covdbg whoami` to check (`Signed in as … for …`). Personal use covers one private repository at a time.
+The browser sign-in ends with choosing the team to sign in for. Use `covdbg login --team personal` to skip the choice, and `covdbg whoami` to check (`Signed in as <email> for <team>`). Personal use covers one private repository at a time.
 
 ## Build
 
