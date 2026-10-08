@@ -27,6 +27,8 @@ covdbg login
 
 Follow the browser sign-in instructions printed by the command.
 
+The browser sign-in ends with choosing the team to sign in for. Use `covdbg login --team personal` to skip the choice, and `covdbg whoami` to check (`Signed in as <email> for <team>`). Personal use covers one private repository at a time.
+
 ## Build
 
 Clone this example and build it with debug symbols (PDB files):
@@ -63,4 +65,4 @@ Public repositories are free, but CI still authenticates with a project token. A
 Add a repository Actions secret named `COVDBG_PROJECT_TOKEN` containing a covdbg project token authorized for your repository. The workflow passes it to covdbg through the environment; CI does not use the interactive `covdbg login` command.
 
 > [!NOTE]
-> covdbg 1.3.0 uses `covdbg login` or `COVDBG_PROJECT_TOKEN`. The old `--fetch-license`, `COVDBG_LICENSE`, and `COVDBG_LICENSE_FILE` options are no longer supported.
+> covdbg 1.3.0 and newer use `covdbg login` or `COVDBG_PROJECT_TOKEN`. The old `--fetch-license`, `COVDBG_LICENSE`, and `COVDBG_LICENSE_FILE` options are no longer supported.
