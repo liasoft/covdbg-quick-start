@@ -1,0 +1,78 @@
+# Proves that a public repository can be licensed with no secret configured.
+#
+# This is the one part of tokenless licensing that cannot be tested anywhere else: only a real
+# GitHub Actions job can mint a token GitHub has actually signed, and the whole point of the feature
+# is that the signature is what makes the repository claim trustworthy. Everything else - the claim
+# parsing, the audience and issuer checks, the key rotation, the decision - is unit-tested in
+# liasoft/covdbg-license against a locally signed token.
+#
+# Deliberately manual. It asserts against the live service, so it runs when somebody wants to know,
+# not on every push.
+name: Verify tokenless licensing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+      # The one permission that matters. Without it GitHub mints nothing, whatever this asks for,
+      # which is also why a pull request from a fork cannot use this path.
+      id-token: write
+
+    steps:
+      - name: Mint a workflow token and ask for an entitlement
+        env:
+          SERVICE_URL: https://app.covdbg.com
+        run: |
+          set -euo pipefail
+
+          echo "::group::Minting the workflow token"
+          token=$(curl -sS \
+            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=covdbg" | jq -r '.value')
+
+          if [ -z "${token}" ] || [ "${token}" = "null" ]; then
+            echo "GitHub minted no token. Is id-token: write granted to this job?"
+            exit 1
+          fi
+
+          # The claims, so a failure here is readable. The signature is not checked locally; the
+          # service does that, which is the thing being verified.
+          echo "Claims GitHub signed:"
+          echo "${token}" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null \
+            | jq '{repository, repository_visibility, aud, iss}' || true
+          echo "::endgroup::"
+
+          echo "::group::Asking for an entitlement with no secret"
+          body=$(curl -sS -w '\n%{http_code}' -X POST "${SERVICE_URL}/api/v1/entitlements" \
+            -H 'Content-Type: application/json' \
+            -H "X-Covdbg-Workflow-Token: ${token}" \
+            -d "{\"remoteUrl\":\"https://github.com/${GITHUB_REPOSITORY}\"}")
+
+          status=$(echo "${body}" | tail -n 1)
+          payload=$(echo "${body}" | sed '$d')
+
+          echo "HTTP ${status}"
+          echo "${payload}" | jq '{granted, decision, reason}' || echo "${payload}"
+          echo "::endgroup::"
+
+          if [ "${status}" != "200" ]; then
+            echo "Expected 200. A 401 means the token did not verify; a 402 means it verified and"
+            echo "the service decided not to grant, which for a public repository is a bug."
+            exit 1
+          fi
+
+          granted=$(echo "${payload}" | jq -r '.granted')
+          reason=$(echo "${payload}" | jq -r '.reason')
+
+          if [ "${granted}" != "true" ] || [ "${reason}" != "public_repository" ]; then
+            echo "Expected granted=true and reason=public_repository, got ${granted} / ${reason}."
+            exit 1
+          fi
+
+          echo "A public repository was licensed with no secret configured."
