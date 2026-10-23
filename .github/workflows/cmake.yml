@@ -12,13 +12,28 @@ jobs:
   build:
     runs-on: windows-latest
 
+    # GitHub does not mint an OIDC token for a pull request from a fork, for the same reason it
+    # withholds secrets there, so coverage is measured on pushes and on pull requests opened from
+    # this repository. Skipping is deliberate: a fork pull request should not show a failed check
+    # for a credential GitHub was never going to issue.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      contents: read
+
+      # This is the whole configuration. covdbg asks GitHub for the token this job can mint and
+      # proves which repository it runs in; a public repository is free, so there is no secret.
+      id-token: write
+
     steps:
     - uses: actions/checkout@v4
 
     - name: Setup covdbg
       uses: liasoft/setup-covdbg@v1
       with:
-        version: 'latest'
+        version: '1.5.0'
 
     - name: Run covdbg
       run: covdbg --version
@@ -44,17 +59,19 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Debug
 
+    # No env block, and no secret. The id-token permission above is the whole credential.
     - name: Run Coverage
       shell: pwsh
-      env:
-        COVDBG_PROJECT_TOKEN: ${{ secrets.COVDBG_PROJECT_TOKEN }}
       run: |
         covdbg --config .covdbg.yaml --output .\build\Debug\test_app.covdb .\build\Debug\test_app.exe
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         covdbg convert --format LCOV --input .\build\Debug\test_app.covdb --output .\build\Debug\test_app.lcov
+        covdbg convert --format COBERTURA --input .\build\Debug\test_app.covdb --output .\build\Debug\test_app.xml
 
     - name: Upload Coverage Reports
       uses: actions/upload-artifact@v6
       with:
         name: coverage-reports
-        path: build/Debug/test_app.lcov
+        path: |
+          build/Debug/test_app.lcov
+          build/Debug/test_app.xml
