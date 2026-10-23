@@ -58,11 +58,11 @@ covdbg convert --format LCOV --input .\build\Debug\test_app.covdb --output .\bui
 
 ## GitHub Actions
 
-The included workflow builds the example, installs the latest covdbg release with `liasoft/setup-covdbg@v1`, and uploads the LCOV report.
+The included workflow builds the example, installs covdbg 1.5.0 with `liasoft/setup-covdbg@v1`, and uploads the LCOV and Cobertura reports.
 
-Public repositories are free, but CI still authenticates with a project token. A token from your personal team at [app.covdbg.com](https://app.covdbg.com/) is sufficient.
+Public repositories are free and need no secret. With `permissions: id-token: write` on the job, covdbg presents the token GitHub issues to the run, which names the repository, and a public repository is licensed. The workflow runs on pushes and on pull requests opened from this repository: GitHub issues no token to a pull request from a fork, so the workflow skips those instead of failing.
 
-Add a repository Actions secret named `COVDBG_PROJECT_TOKEN` containing a covdbg project token authorized for your repository. The workflow passes it to covdbg through the environment; CI does not use the interactive `covdbg login` command.
+A private repository still needs a project token. Add a repository Actions secret named `COVDBG_PROJECT_TOKEN` containing a project token from [app.covdbg.com](https://app.covdbg.com/), and pass it to the `Run Coverage` step through `env`. CI does not use the interactive `covdbg login` command.
 
 > [!NOTE]
-> covdbg 1.3.0 and newer use `covdbg login` or `COVDBG_PROJECT_TOKEN`. The old `--fetch-license`, `COVDBG_LICENSE`, and `COVDBG_LICENSE_FILE` options are no longer supported.
+> covdbg 1.5.0 and newer license a public repository's GitHub Actions run without a token. The old `--fetch-license`, `COVDBG_LICENSE`, and `COVDBG_LICENSE_FILE` options are no longer supported.
