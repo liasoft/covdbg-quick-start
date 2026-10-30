@@ -58,7 +58,7 @@ covdbg convert --format LCOV --input .\build\Debug\test_app.covdb --output .\bui
 
 ## GitHub Actions
 
-The included workflow builds the example, installs covdbg 1.5.0 with `liasoft/setup-covdbg@v1`, and uploads the LCOV and Cobertura reports.
+The included workflow builds the example on Windows x64 (`windows-latest`) and Windows ARM64 (`windows-11-arm`), installs covdbg 1.5.1 with `liasoft/setup-covdbg@v1`, and uploads the LCOV and Cobertura reports for each.
 
 Public repositories are free and need no secret. With `permissions: id-token: write` on the job, covdbg presents the token GitHub issues to the run, which names the repository, and a public repository is licensed. The workflow runs on pushes and on pull requests opened from this repository: GitHub issues no token to a pull request from a fork, so the workflow skips those instead of failing.
 
