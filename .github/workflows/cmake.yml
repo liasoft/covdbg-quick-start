@@ -10,7 +10,12 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, windows-11-arm]
+
+    runs-on: ${{ matrix.os }}
 
     # GitHub does not mint an OIDC token for a pull request from a fork, for the same reason it
     # withholds secrets there, so coverage is measured on pushes and on pull requests opened from
@@ -33,7 +38,7 @@ jobs:
     - name: Setup covdbg
       uses: liasoft/setup-covdbg@v1
       with:
-        version: '1.5.0'
+        version: '1.5.1'
 
     - name: Run covdbg
       run: covdbg --version
@@ -71,7 +76,7 @@ jobs:
     - name: Upload Coverage Reports
       uses: actions/upload-artifact@v6
       with:
-        name: coverage-reports
+        name: coverage-reports-${{ matrix.os }}
         path: |
           build/Debug/test_app.lcov
           build/Debug/test_app.xml
