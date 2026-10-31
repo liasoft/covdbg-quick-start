@@ -7,7 +7,7 @@ Build a small C++ application and collect code coverage with the latest [covdbg]
 * Windows 10 (x64) or Windows 11
 * Visual Studio with the Desktop development with C++ workload
 * CMake 3.20 or newer
-* A covdbg account for signing in
+* A GitHub account for signing in
 
 ## Installation
 
@@ -17,7 +17,7 @@ Download the [latest covdbg MSI installer](https://covdbg.com/download/latest/in
 covdbg --version
 ```
 
-Alternatively, extract the [latest portable ZIP](https://covdbg.com/download/latest/portable.zip) and add its directory to PATH. Keep `covdbg.exe` and `libcovdbg.dll` together.
+Alternatively, extract the [latest portable ZIP](https://covdbg.com/download/latest/portable.zip) and add its directory to PATH. Keep `covdbg.exe` and its agent DLLs together in one folder.
 
 Sign in before collecting coverage:
 
@@ -48,6 +48,21 @@ Collect coverage while running the application:
 
 ```powershell
 covdbg --config .covdbg.yaml --output .\build\Debug\test_app.covdb .\build\Debug\test_app.exe
+```
+
+```text
+covdbg: collecting coverage for C:\src\covdbg-quick-start\build\Debug\test_app.exe
+Hello, World!
+covdbg: test_app.exe exited with code 0
+covdbg: coverage written to .\build\Debug\test_app.covdb
+covdbg: 4 of 6 basic blocks hit (66.7%), analysis 49 ms, run 89 ms
+```
+
+The run took the `Hello, World!` path, so the greeting with a name in `src/main.cpp` shows as not run. Run the program again with a name, into a second database, and merge the two to cover both paths:
+
+```powershell
+covdbg --config .covdbg.yaml --output .\build\Debug\test_app-name.covdb .\build\Debug\test_app.exe Ada
+covdbg merge -i .\build\Debug\test_app.covdb -i .\build\Debug\test_app-name.covdb -o .\build\Debug\merged.covdb
 ```
 
 Convert the coverage database to LCOV for use with other tools:
