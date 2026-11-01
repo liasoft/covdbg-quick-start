@@ -65,15 +65,22 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Debug
 
     # No env block, and no secret. The id-token permission above is the whole credential.
+    # --propagate-exit-code makes covdbg exit with the program's exit code once the database is
+    # written, so a failing test run fails this step; covdbg's own errors still exit 1.
     - name: Run Coverage
       shell: pwsh
+      run: covdbg --propagate-exit-code --config .covdbg.yaml --output .\build\Debug\test_app.covdb .\build\Debug\test_app.exe
+
+    # always(): a failing test run still wrote its database, so it still gets its reports.
+    - name: Convert Coverage
+      if: always()
+      shell: pwsh
       run: |
-        covdbg --config .covdbg.yaml --output .\build\Debug\test_app.covdb .\build\Debug\test_app.exe
-        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         covdbg convert --format LCOV --input .\build\Debug\test_app.covdb --output .\build\Debug\test_app.lcov
         covdbg convert --format COBERTURA --input .\build\Debug\test_app.covdb --output .\build\Debug\test_app.xml
 
     - name: Upload Coverage Reports
+      if: always()
       uses: actions/upload-artifact@v6
       with:
         name: coverage-reports-${{ matrix.os }}
